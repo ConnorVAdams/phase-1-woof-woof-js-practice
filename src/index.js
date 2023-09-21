@@ -12,15 +12,6 @@ const displayCard = document.querySelector('#dog-info');
 //Global state variables
 let filtered = false;
 
-// ! Define renderDisplayCard
-const buildDisplayCard = (dogId) => {
-    const dogImg = document.createElement('img');
-    const dogName = document.createElement('h2');
-    const dogBtn = document.createElement('button');
-    dogBtn.id = dogId;
-    displayCard.append(dogImg, dogName, dogBtn);
-};
-
 // ! Define fetchAllDogs
 //GET data from server for all Objects
 const fetchAllDogs = () => {
@@ -28,26 +19,24 @@ const fetchAllDogs = () => {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            Accept: 'application/json',
         }
     })
     .then(resp => resp.json())
     .catch(error => console.log('Failed to fetch data.'));
 };
 
-// ! Define fetchSingleDog
-//GET data from server for one Object
-const fetchSingleDog = (dogId) => {
-    return fetch(`${DOG_URL}/${dogId}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-    .then(resp => resp.json())
-    .then(dogObj => console.log(dogObj))
-    .catch(error => console.log('Failed to fetch data.'));
-};
+// // ! Define fetchSingleDog
+// //GET data from server for one Object
+// const fetchSingleDog = (dogId) => {
+//     return fetch(`${DOG_URL}/${dogId}`, {
+//         method: 'GET',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         }
+//     })
+//     .then(resp => resp.json())
+//     .catch(error => console.log('Failed to fetch data.'));
+// };
 
 // ! Define populateDogBar
 //Fetch all dogs from the server and render them in the nav bar
@@ -58,6 +47,7 @@ const populateDogBar = () => {
 }
 
 // ! Farm out createDogAvatar
+//Iterate through passed object and create an avatar for each dog
 const renderDogAvatars = (dogsObj) => {
     dogsObj.forEach(element => {
         createDogAvatar(element);
@@ -65,6 +55,7 @@ const renderDogAvatars = (dogsObj) => {
 };
 
 // ! One avatar at a time!
+//Create one dog avatar for use in nav bar
 const createDogAvatar = (dogObj) => {
     const newDogAv = document.createElement('span');
     newDogAv.setAttribute('data-id', `${dogObj.id}`);
@@ -73,40 +64,51 @@ const createDogAvatar = (dogObj) => {
     dogBar.addEventListener('click', displayDog)
 };
 
-//Create <span> in <div#dog-bar>
-//Display dog's name in <span>
-//Append a <span> to <div#dog-bar>
-//Attach listener for click event, invokes handleClick
+// // ! Populate <div#dog-info> with info and image from clicked dog of <div#dog-bar>
+// //Define displayDog // ! ASYNC
+// const displayDogAsync = (e) => {
+//     const dogId = e.target.dataset.id;
+//     const clickedDogObj = fetchSingleDog(); //TODO 
+//     buildDisplayCard();
+//     populateDisplayCard(clickedDogObj);
+// };
 
-// ! Populate <div#dog-info> with info and image from clicked dog of <div#dog-bar>
-//Define displayDog
-const displayDog = (e) => {
-    debugger
-    const dogId = e.target.dataset.id;
-    const clickedDogObj = fetchSingleDog();
-    buildDisplayCard();
-    populateDisplayCard(clickedDogObj);
-};
-//Each dog needs to bring its own button with it
-//GET single dogObj from db
-//Capture data-id from dogObj and 
-//Get image, name, and isGoodDog for clicked dog
-//Populate <div#dog-info> with <img src=url>, <h2>name, and <button#good-or-bad> that displays good or bad dog
-//Define <button#good-or-bad> locally so it can be targeted
-// const goodOrBadBtn = document.querySelector('#good-or-bad'); 
+// //Define displayDog // ! SYNC
+// const displayDogSync = (e) => {
+//     const dogId = e.target.dataset.id;
+//     return fetch(`${DOG_URL}/${dogId}`, {
+//         method: 'GET',
+//         headers: {
+//             'Content-Type': 'application/json',
+//         }
+//     })
+//     .then(resp => resp.json())
+//     .then(buildDisplayCard())
+//     .then(populateDisplayCard(dogObj))
+//     .catch(error => console.log('Failed to fetch data.'))
+// };
 
-// ! Define populateDisplayCard
-//Pull dog data from db and load it onto the display card
-const populateDisplayCard = (dogObj) => {
-    debugger
-    displayCard.img.src = dogObj.image;
-    displayCard.name = dogObj.name;
-    if (dogsObj.isGoodDog){
-        displayCard.dogBtn.textContent = "Good Dog!";
-    } else {
-        displayCard.dogBtn.textContent = "Bad Dog!";
-    }
-};
+// // ! Define buildDisplayCard
+// const buildDisplayCard = (dogId) => {
+//     const dogImg = document.createElement('img');
+//     const dogName = document.createElement('h2');
+//     const dogBtn = document.createElement('button');
+//     dogBtn.id = dogId;
+//     displayCard.append(dogImg, dogName, dogBtn);
+// };
+
+// // ! Define populateDisplayCard
+// //Pull dog data from db and load it onto the display card
+// const populateDisplayCard = (dogObj) => {
+//     debugger
+//     displayCard.img.src = dogObj.image;
+//     displayCard.name = dogObj.name;
+//     if (dogsObj.isGoodDog){
+//         displayCard.dogBtn.textContent = "Good Dog!";
+//     } else {
+//         displayCard.dogBtn.textContent = "Bad Dog!";
+//     }
+// };
 
 // ! Handle goodDog button click
     //Define handleGoodOrBadClick
