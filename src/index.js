@@ -12,15 +12,17 @@ let dogImg;
 let dogName;
 let dogBtn;
 
-//Global state variables
+//Global malleable variables
 let filtered = false;
+let currentlyDisplayedDog;
 
 // ! Define renderDisplayCard
+//TODO Build hidden class into this function
 const buildDisplayCard = (dogId) => {
     dogImg = document.createElement('img');
     dogName = document.createElement('h2');
     dogBtn = document.createElement('button');
-    dogBtn.addEventListener('click', toggleGoodOrBad)
+    dogBtn.addEventListener('click', updateGoodOrBad)
     displayCard.append(dogImg, dogName, dogBtn);
 };
 
@@ -50,21 +52,15 @@ const fetchSingleDog = (requestedDogId) => {
     .catch(error => console.log('Failed to fetch data.'));
 };
 
-// ! Define toggleGoodOrBad
-//Send PATCH request to server to toggle value of isGoodDog
-const toggleGoodOrBad = (e, newGoodOrBadValue) => {
-    const requestedDogId = dogBtn.dataset.id;
-    
-    return fetch(`${DOG_URL}/${requestedDogId}`, {
+// ! Define patchDog
+const patchDog = (dogObj) => {
+    fetch(`${DOG_URL}/${currentlyDisplayedDog}`, {
         method: 'PATCH',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
         },
-        body: JSON.stringify({isGoodDog: })
+        body: JSON.stringify({isGoodDog: dogObj.isGoodDog})
     })
-    .then(resp => resp.json())
-    .then(dogObj => console.log(dogObj))
-    .catch(error => console.log('Failed to fetch data.'));
 };
 
 // ! Define populateDogBar
@@ -90,22 +86,15 @@ const createDogAvatar = (dogObj) => {
     newDogAv.setAttribute('data-id', `${dogObj.id}`);
     newDogAv.textContent = dogObj.name;
     dogBar.appendChild(newDogAv);
-    dogBar.addEventListener('click', displayDogSync);
+    dogBar.addEventListener('click', displayDog);
 };
 
 // ! Populate <div#dog-info> with info and image from clicked dog of <div#dog-bar>
-//Define displayDog synchronously
-const displayDogAsync = (e) => {
-    const requestedDogId = e.target.dataset.id;
-    const clickedDogObj = fetchSingleDog(requestedDogId); 
-    populateDisplayCard(clickedDogObj);
-};
-
-//Define displayDog asynchronously
-const displayDogSync = (e) => {
-    const requestedDogId = e.target.dataset.id;
-    const clickedDogObj = fetchSingleDog(requestedDogId); 
-    fetch(`${DOG_URL}/${requestedDogId}`, {
+//Define displayDog
+const displayDog = (e) => {
+    currentlyDisplayedDog = e.target.dataset.id;
+    const clickedDogObj = fetchSingleDog(currentlyDisplayedDog); 
+    fetch(`${DOG_URL}/${currentlyDisplayedDog}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
@@ -129,12 +118,27 @@ const populateDisplayCard = (dogObj) => {
     dogBtn.dataset.id = dogObj.id;
 };
 
-// ! Handle goodDog button click
-    //Define handleGoodOrBadClick
-    //PATCH database to reflect change
-    //Change textContent of goodDog <button>
-// ! Attach listener to <button#good-or-bad>
-//<button#good-or-bad> gets handleGoodOrBadClick
+// ! Define updateGoodOrBadDb
+const updateGoodOrBad = () => {
+    const currentDogObj = fetchSingleDog(currentlyDisplayedDog)
+    .then(currentDogObj => {
+        currentDogObj.isGoodDog = !currentDogObj.isGoodDog;
+        return currentDogObj; //TODO why isn't this implicitly returning the obj? 
+    })
+    .then(currentDogObj => {
+        patchDog(currentDogObj)
+        return currentDogObj;
+    })
+    .then((currentDogObj) => updateDogBtn(currentDogObj.isGoodDog))
+};
+
+const updateDogBtn = (bool) => {
+    if (bool) {
+        dogBtn.textContent = 'Good Dog!';
+    } else {
+        dogBtn.textContent = 'Bad Dog!';
+    }
+};
 
 // ! Filter good dogs
 //Define handleFilterClick
@@ -154,17 +158,6 @@ const populateDisplayCard = (dogObj) => {
 //Toggle hidden attribute off for bad dogs
 
 // ! Attach event listeners
-//<button#good-dog-filter> gets handleFilterClick
-//<document> gets populateDogBar on DOMContentLoaded
-
-// ! Fetch data from API
+// Fetch data from API and load dog avatars on page load
 document.addEventListener('DOMContentLoaded', populateDogBar);
-document.addEventListener('DOMContentLoaded', buildDisplayCard)
-
-//Each dog needs to bring its own button with it
-//GET single dogObj from db
-//Capture data-id from dogObj and 
-//Get image, name, and isGoodDog for clicked dog
-//Populate <div#dog-info> with <img src=url>, <h2>name, and <button#good-or-bad> that displays good or bad dog
-//Define <button#good-or-bad> locally so it can be targeted
-// const goodOrBadBtn = document.querySelector('#good-or-bad'); 
+document.addEventListener('DOMContentLoaded', buildDisplayCard);
