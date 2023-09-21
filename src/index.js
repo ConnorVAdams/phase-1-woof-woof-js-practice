@@ -14,7 +14,7 @@ let dogBtn;
 
 //Global malleable variables
 let filtered = false;
-let currentlyDisplayedDog;
+let currentlyDisplayedDog = false;
 
 // ! Define renderDisplayCard
 //TODO Build hidden class into this function
@@ -92,6 +92,9 @@ const createDogAvatar = (dogObj) => {
 // ! Populate <div#dog-info> with info and image from clicked dog of <div#dog-bar>
 //Define displayDog
 const displayDog = (e) => {
+    if (!currentlyDisplayedDog) {
+        buildDisplayCard();
+    };
     currentlyDisplayedDog = e.target.dataset.id;
     const clickedDogObj = fetchSingleDog(currentlyDisplayedDog); 
     fetch(`${DOG_URL}/${currentlyDisplayedDog}`, {
@@ -121,6 +124,7 @@ const populateDisplayCard = (dogObj) => {
 // ! Define updateGoodOrBadDb
 const updateGoodOrBad = () => {
     const currentDogObj = fetchSingleDog(currentlyDisplayedDog)
+    //TODO if(!resp.ok)
     .then(currentDogObj => {
         currentDogObj.isGoodDog = !currentDogObj.isGoodDog;
         return currentDogObj; //TODO why isn't this implicitly returning the obj? 
@@ -160,4 +164,3 @@ const updateDogBtn = (bool) => {
 // ! Attach event listeners
 // Fetch data from API and load dog avatars on page load
 document.addEventListener('DOMContentLoaded', populateDogBar);
-document.addEventListener('DOMContentLoaded', buildDisplayCard);
