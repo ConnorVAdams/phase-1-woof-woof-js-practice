@@ -7,11 +7,9 @@ const filterButton = document.querySelector('#good-dog-filter');
 
 //Display DOM elements
 const dogBar = document.querySelector("#dog-bar");
-dogBar.addEventListener('click', () => {
-    alert('')
-})
+const displayCard = document.querySelector('#dog-info');
 
-// //Global state variables
+//Global state variables
 let filtered = false;
 
 // ! Define populateDogBar
@@ -42,7 +40,10 @@ const createDogAvatar = (dogObj) => {
     newDogAv.setAttribute('data-id', `${dogObj.id}`);
     newDogAv.textContent = dogObj.name;
     dogBar.appendChild(newDogAv);
+    dogBar.addEventListener('click', displayDog)
 };
+
+
 
 //Create <span> in <div#dog-bar>
 //Display dog's name in <span>
@@ -50,15 +51,41 @@ const createDogAvatar = (dogObj) => {
 //Attach listener for click event, invokes handleClick
 
 // ! Populate <div#dog-info> with info and image from clicked dog of <div#dog-bar>
-//Define handleClick
+//Define displayDog
+const displayDog = (e) => {
+    const dogId = e.target.dataset.id;
+    renderDisplayCard();
+    populateDisplayCard();
+    debugger
+};
+//Each dog needs to bring its own button with it
 //GET single dogObj from db
 //Capture data-id from dogObj and 
 //Get image, name, and isGoodDog for clicked dog
 //Populate <div#dog-info> with <img src=url>, <h2>name, and <button#good-or-bad> that displays good or bad dog
 //Define <button#good-or-bad> locally so it can be targeted
-const goodOrBadBtn = document.querySelector('#good-or-bad'); 
+// const goodOrBadBtn = document.querySelector('#good-or-bad'); 
 
-    // ! Handle goodDog button click
+// ! Define renderDisplayCard
+const renderDisplayCard = (dogId) => {
+    const dogImg = document.createElement('img');
+    const dogName = document.createElement('h2');
+    const dogBtn = document.createElement('button');
+    displayCard.append(dogImg, dogName, dogBtn);
+};
+
+// ! Define populateDisplayCard
+//Pull dog data from db and load it onto the display card
+const populateDisplayCard = (dogId) => {
+    fetch(DOG_URL, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    })
+}
+
+// ! Handle goodDog button click
     //Define handleGoodOrBadClick
     //PATCH database to reflect change
     //Change textContent of goodDog <button>
