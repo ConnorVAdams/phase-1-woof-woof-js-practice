@@ -8,16 +8,19 @@ const filterButton = document.querySelector('#good-dog-filter');
 //Display DOM elements
 const dogBar = document.querySelector("#dog-bar");
 const displayCard = document.querySelector('#dog-info');
+let dogImg;
+let dogName;
+let dogBtn;
 
 //Global state variables
 let filtered = false;
 
 // ! Define renderDisplayCard
 const buildDisplayCard = (dogId) => {
-    const dogImg = document.createElement('img');
-    const dogName = document.createElement('h2');
-    const dogBtn = document.createElement('button');
-    dogBtn.id = dogId;
+    dogImg = document.createElement('img');
+    dogName = document.createElement('h2');
+    dogBtn = document.createElement('button');
+    dogBtn.addEventListener('click', toggleGoodOrBad)
     displayCard.append(dogImg, dogName, dogBtn);
 };
 
@@ -36,14 +39,31 @@ const fetchAllDogs = () => {
 
 // ! Define fetchSingleDog
 //GET data from server for one Object and return dogObj
-const fetchSingleDog = (dogId) => {
-    return fetch(`${DOG_URL}/${dogId}`, {
+const fetchSingleDog = (requestedDogId) => {
+    return fetch(`${DOG_URL}/${requestedDogId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         }
     })
     .then(resp => resp.json())
+    .catch(error => console.log('Failed to fetch data.'));
+};
+
+// ! Define toggleGoodOrBad
+//Send PATCH request to server to toggle value of isGoodDog
+const toggleGoodOrBad = (e, newGoodOrBadValue) => {
+    const requestedDogId = dogBtn.dataset.id;
+    
+    return fetch(`${DOG_URL}/${requestedDogId}`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({isGoodDog: })
+    })
+    .then(resp => resp.json())
+    .then(dogObj => console.log(dogObj))
     .catch(error => console.log('Failed to fetch data.'));
 };
 
@@ -70,44 +90,43 @@ const createDogAvatar = (dogObj) => {
     newDogAv.setAttribute('data-id', `${dogObj.id}`);
     newDogAv.textContent = dogObj.name;
     dogBar.appendChild(newDogAv);
-    dogBar.addEventListener('click', displayDogSync)
+    dogBar.addEventListener('click', displayDogSync);
 };
 
 // ! Populate <div#dog-info> with info and image from clicked dog of <div#dog-bar>
-//Define displayDog
+//Define displayDog synchronously
 const displayDogAsync = (e) => {
-    const dogId = e.target.dataset.id;
-    const clickedDogObj = fetchSingleDog(); 
-    buildDisplayCard();
+    const requestedDogId = e.target.dataset.id;
+    const clickedDogObj = fetchSingleDog(requestedDogId); 
     populateDisplayCard(clickedDogObj);
 };
 
+//Define displayDog asynchronously
 const displayDogSync = (e) => {
-    const dogId = e.target.dataset.id;
-    const clickedDogObj = fetchSingleDog(dogId); 
-    buildDisplayCard();
-    fetch(`${DOG_URL}/${dogId}`, {
+    const requestedDogId = e.target.dataset.id;
+    const clickedDogObj = fetchSingleDog(requestedDogId); 
+    fetch(`${DOG_URL}/${requestedDogId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         }
     })
     .then(resp => resp.json())
-    .then(dogObj => console.log(dogObj))
+    .then(dogObj => populateDisplayCard(dogObj))
     .catch(error => console.log('Failed to fetch data.'));
-}
+};
 
 // ! Define populateDisplayCard
 //Pull dog data from db and load it onto the display card
 const populateDisplayCard = (dogObj) => {
-    debugger
-    displayCard.img.src = dogObj.image;
-    displayCard.name = dogObj.name;
-    if (dogsObj.isGoodDog){
-        displayCard.dogBtn.textContent = "Good Dog!";
+    dogImg.src = dogObj.image;
+    dogName.textContent = dogObj.name;
+    if (dogObj.isGoodDog) {
+        dogBtn.textContent = 'Good Dog!';
     } else {
-        displayCard.dogBtn.textContent = "Bad Dog!";
+        dogBtn.textContent = 'Bad Dog!';
     }
+    dogBtn.dataset.id = dogObj.id;
 };
 
 // ! Handle goodDog button click
@@ -140,6 +159,7 @@ const populateDisplayCard = (dogObj) => {
 
 // ! Fetch data from API
 document.addEventListener('DOMContentLoaded', populateDogBar);
+document.addEventListener('DOMContentLoaded', buildDisplayCard)
 
 //Each dog needs to bring its own button with it
 //GET single dogObj from db
