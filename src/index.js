@@ -17,7 +17,6 @@ let filtered = false;
 let currentlyDisplayedDog = false;
 
 // ! Define renderDisplayCard
-//TODO Build hidden class into this function
 const buildDisplayCard = (dogId) => {
     dogImg = document.createElement('img');
     dogName = document.createElement('h2');
@@ -81,8 +80,10 @@ const renderDogAvatars = (dogsObj) => {
 
 // ! Render one avatar at a time
 //Create one dog avatar for use in nav bar
+//TODO Build hidden class into this function
 const createDogAvatar = (dogObj) => {
     const newDogAv = document.createElement('span');
+    newDogAv.className = 'avatar';
     newDogAv.setAttribute('data-id', `${dogObj.id}`);
     newDogAv.textContent = dogObj.name;
     dogBar.appendChild(newDogAv);
@@ -96,7 +97,7 @@ const displayDog = (e) => {
         buildDisplayCard();
     };
     currentlyDisplayedDog = e.target.dataset.id;
-    const clickedDogObj = fetchSingleDog(currentlyDisplayedDog); 
+    const clickedDogObj = fetchSingleDog(currentlyDisplayedDog); //TODO can I automatically pass this or do I need to assign it to a var first like I did here?
     fetch(`${DOG_URL}/${currentlyDisplayedDog}`, {
         method: 'GET',
         headers: {
@@ -136,12 +137,52 @@ const updateGoodOrBad = () => {
     .then((currentDogObj) => updateDogBtn(currentDogObj.isGoodDog))
 };
 
+// ! Define updateDogBtn
 const updateDogBtn = (bool) => {
     if (bool) {
         dogBtn.textContent = 'Good Dog!';
     } else {
         dogBtn.textContent = 'Bad Dog!';
     }
+};
+
+// ! Define hideBadDogs
+const filterDogs = () => {
+    if (filtered) {
+        const dogsObj = fetchAllDogs() 
+        .then(dogsObj => {
+            const badDogIds = dogsObj.filter(dog => !dog.isGoodDog).map(dog => dog.id);
+            return badDogIds;
+        })
+        .then(badDogIds => {
+            const dogBarDogs = [...document.querySelectorAll('.avatar')];
+            dogBarDogs.filter(avatar => {
+                debugger
+                if (badDogIds.includes(parseInt(avatar.dataset.id))) {
+                    console.log('bad')
+                }
+            })
+        })
+        //Iterate through all dogs in db
+        //Return IDs of bad dogs
+        //Pass those IDs to hideBadDogs
+            //Iterate through dog avatars and add .hidden class to all passed IDs
+    //Toggle filtered state
+    } else {
+        
+    }
+    filtered = !filtered;
+};
+
+//TODO Am I going overboard with the data IDs/SST thing?
+
+const isGoodAvatar = (dogObj) => {
+    
+    if (dogObj.isGoodDog) {
+        return 'is-good-avatar';
+    } else {
+        return 'is-bad-avatar';
+    };
 };
 
 // ! Filter good dogs
@@ -164,3 +205,4 @@ const updateDogBtn = (bool) => {
 // ! Attach event listeners
 // Fetch data from API and load dog avatars on page load
 document.addEventListener('DOMContentLoaded', populateDogBar);
+filterButton.addEventListener('click', filterDogs)
