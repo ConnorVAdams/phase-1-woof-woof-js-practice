@@ -15,6 +15,7 @@ let dogBtn;
 //Global malleable variables
 let filtered = false;
 let currentlyDisplayedDog = false;
+const dogJail = [];
 
 // ! Define renderDisplayCard
 const buildDisplayCard = (dogId) => {
@@ -146,7 +147,7 @@ const updateDogBtn = (bool) => {
     }
 };
 
-// ! Define hideBadDogs
+// ! Define filterDogs
 const filterDogs = () => {
     if (filtered) {
         const dogsObj = fetchAllDogs() 
@@ -157,19 +158,16 @@ const filterDogs = () => {
         .then(badDogIds => {
             const dogBarDogs = [...document.querySelectorAll('.avatar')];
             dogBarDogs.filter(avatar => {
-                debugger
                 if (badDogIds.includes(parseInt(avatar.dataset.id))) {
-                    console.log('bad')
+                    dogJail.push(avatar);
+                    avatar.remove();
                 }
             })
         })
-        //Iterate through all dogs in db
-        //Return IDs of bad dogs
-        //Pass those IDs to hideBadDogs
-            //Iterate through dog avatars and add .hidden class to all passed IDs
-    //Toggle filtered state
     } else {
-        
+        [...document.querySelectorAll('.avatar')].forEach(avatar => {
+            dogJail.forEach(avatar => dogBar.appendChild(avatar))
+        })
     }
     filtered = !filtered;
 };
