@@ -25,15 +25,23 @@ const populateDogBar = () => {
         }
     })
     .then(resp => resp.json())
-    .then(data => {
-        data.forEach(element => {
-            const newDog = document.createElement('span');
-            newDog.setAttribute('data-id', `${element.id}`);
-            newDog.textContent = element.name;
-            dogBar.appendChild(newDog);
-        })
-    })
+    .then(dogsObj => renderDogAvatars(dogsObj))
     .catch(error => console.log('Failed to fetch data.'));
+};
+
+// ! Farm out createDogAvatar
+const renderDogAvatars = (dogsObj) => {
+    dogsObj.forEach(element => {
+        createDogAvatar(element);
+    })
+};
+
+// ! One avatar at a time!
+const createDogAvatar = (dogObj) => {
+    const newDogAv = document.createElement('span');
+    newDogAv.setAttribute('data-id', `${dogObj.id}`);
+    newDogAv.textContent = dogObj.name;
+    dogBar.appendChild(newDogAv);
 };
 
 //Create <span> in <div#dog-bar>
